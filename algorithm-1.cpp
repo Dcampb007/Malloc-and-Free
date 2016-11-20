@@ -1,55 +1,67 @@
-// A heapsort constructed using
+// This algorithm allocated the size of the array at the beginning, fills the elements, then outputs the elements.
+// After that, this algorithm frees the whole array at once.
+//NOTE: this is not an array_list or vector. trying to access memory out of range will return a non-zero number.
+//NOTE: This program has been modified to use int* pointers instead of void* in FREE
+// Will change upon more conversation with Dr. Bloom
 #include <iostream>
 #include <string>
 #include <vector>
+#include "heapsort-algorithm.cpp"
 using namespace std;
-void buildHeap(int A[], int last);
-void MaxHeapify(int A[], int parent, int  last);
-void swap(int &child, int &parent);
-void heapsort(int A[], int size);
-//void* malloc(size_t size);
-//void free(void* ptr);
-// Function to build the heap, calls MaxHeapify
-//Indexing starts at 0,
-// left child = (2*parent) + 1
-// right child = (2*parent) + 2
-// parent = (size/2) -1
-void buildHeap(int A[], int last) {
-    for (int i = (last/2) - 1; i >=0; i--){
-        MaxHeapify(A, i, last);
+void* Malloc(size_t size) {
+    if (size == 0)
+        return NULL;
+    int *array;
+    array = new (nothrow) int[size];
+    //array[0] = 1;
+    //cout << array[0];
+    return array;
+}
+void Free(int* array) {
+    array = (int*) array;
+    if (array == 0)
+        return;
+    else {
+            delete[]  array;
     }
 }
-void MaxHeapify(int A[], int parent, int  last) {
-    int child = 2*parent + 1;
-    while (child <= last-1) {
-        // (if right child index <= last index, and A[right child] > A[left child]; child++
-        if (child + 1 <= last-1 && A[child+1] > A[child])
-            child++;
-        if (A[child] > A[parent])
-            swap(A[child], A[parent]);
-        
-        parent = child;
-        child = 2*parent+1;
-    }
+
+void printArray(int A[], size_t size) {
+    for( int i = 0; i < size; i++)
+        cout << A[i] << ", ";
+
 }
-// Swaps the elements in the array
-void swap(int &child, int &parent) {
-    
-    int temp = child;
-    child = parent;
-    parent = temp;
-}
-// sorts the heap
-void heapsort(int A[], size_t size) {
-    for (unsigned int i = size; i > 0; i--) {
-        int temp = A[i-1];
-        A[i-1] = A[0];
-        A[0] = temp;
-        buildHeap(A, i-1);
-    }
-    
-}
+//NOTE: The 0 terminating array will never display the 0 at the end. It is in the array technically, but never displayed to the user
+// while building the heap, size = array_size; for allocating space for array, size = array_size + 1
 int main() {
-    cout << "This is a heapsort algorithm from least to greatest" << endl;
+    size_t array_size;
+    cout << "Enter an array size:  ";
+    cin >> array_size;
+    int *array;                          //  allocating memory for the int array
+    array  = (int*)Malloc(array_size+1); // Allocated 1 extra space of memory for the 0 terminating array
+    int number;
+    int counter = 0;
+    do {
+        cout << "Enter a NON ZERO numbers. Enter 0 to end your array " <<  "INDEX ";
+        cout << counter << ":  ";
+        cin >> number;
+        *(array+counter) = number;
+        counter++;
+    }while( counter <= array_size && number != 0);
+    
+    if (counter == array_size && number != 0) {
+        cout << "ACCESSING MEMORY OUTSIDE OF THE ARRAY";
+        return 1;
+    }
+    else if( counter <= array_size) {
+        int new_size = counter-1;
+        heapsort(array, new_size); // counter is the new array size because the original allocated space wasn't used)
+        printArray(array, new_size);
+    }
+    else{
+        heapsort(array, array_size);
+        printArray(array, array_size);
+        }
+    Free(array);
     return 0;
 }
