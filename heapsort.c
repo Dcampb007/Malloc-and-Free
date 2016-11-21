@@ -50,22 +50,30 @@ int main(){
   do{
     x++;
     printf("Enter a non-zero number to be sorted");
+    scanf("%d",&i);
     if(size==0){
-      heap = malloc(sizeof(int));
-      scanf("%d",&i);
-      heap[size]=i;
-      size++;
-    }
+      if(i==0){
+          printf("Null Array");
+          return 0;
+       }
+       else{
+         heap = malloc(sizeof(int));
+         heap[size]=i;
+         size++;
+       }
+    }//end if i ==0
     else{
-      heap = realloc(heap ,(size+1)*sizeof(int));
-      scanf("%d",&i);
-      heap[size]=i;
-      size++;
+      if(i!=0){
+        heap = realloc(heap, (size+1)*sizeof(int));
+        heap[size]=i;
+        size++;
+      }//no else for if i!=0
     }
-  }while(heap[size-1]!=0);
+  }while(i!=0);
   printheap(heap, size);
   make_heap(heap, size);
   heapsort(heap,size);
+  printf("Sorted result is as follows:\n");
   printheap(heap, size);
   return 0;
 }
