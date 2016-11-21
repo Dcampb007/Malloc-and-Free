@@ -41,14 +41,28 @@ void make_heap(int heap[], int size){
   }
 }
 int main(){
-  int heap[] = {234,320,-34,594,3,23};
-  int size = 6;
+  // int heap[] = {234,320,-34,594,3,23};
+  // int size = 6;
+  int i;
+  int* heap;
+  int size = 0;
   int x=0;
-  while(x<6){
-    printf("Enter a non-zero number to be sorted");
-    scanf("%d", &heap[x]);
+  do{
     x++;
-  }
+    printf("Enter a non-zero number to be sorted");
+    if(size==0){
+      heap = malloc(sizeof(int));
+      scanf("%d",&i);
+      heap[size]=i;
+      size++;
+    }
+    else{
+      heap = realloc(heap ,(size+1)*sizeof(int));
+      scanf("%d",&i);
+      heap[size]=i;
+      size++;
+    }
+  }while(heap[size-1]!=0);
   printheap(heap, size);
   make_heap(heap, size);
   heapsort(heap,size);
