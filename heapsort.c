@@ -1,5 +1,4 @@
-//C heap sort using malloc and free
-
+//C heap sort using malloc and free and alloc
 #include<stdio.h>
 #include<stdlib.h>
 
@@ -40,6 +39,20 @@ void make_heap(int heap[], int size){
     maxheapify(heap, x, size);
   }
 }
+void make_error_msg(int x){
+  switch(x){
+    case 1 :
+            printf ("Invalid Entry or Empty Array");
+            return;
+    case 2 :
+            printf("No more memory available, data corrupted");
+            return;
+    default :
+            printf("Unexpected behaviour");
+            return;
+  }
+}
+
 int main(){
   // int heap[] = {234,320,-34,594,3,23};
   // int size = 6;
@@ -53,11 +66,15 @@ int main(){
     scanf("%d",&i);
     if(size==0){
       if(i==0){
-          printf("Null Array");
-          return 0;
+          make_error_msg(1);
+          exit(1);
        }
        else{
          heap = malloc(sizeof(int));
+         if(heap==NULL){
+           make_error_msg(2);
+           exit(1);
+         }
          heap[size]=i;
          size++;
        }
@@ -65,6 +82,10 @@ int main(){
     else{
       if(i!=0){
         heap = realloc(heap, (size+1)*sizeof(int));
+        if(heap==NULL){
+          exit(1);
+          return 0;
+        }
         heap[size]=i;
         size++;
       }//no else for if i!=0
