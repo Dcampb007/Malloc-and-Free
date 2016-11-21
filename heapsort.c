@@ -96,5 +96,6 @@ int main(){
   heapsort(heap,size);
   printf("Sorted result is as follows:\n");
   printheap(heap, size);
+  free(heap);
   return 0;
 }
