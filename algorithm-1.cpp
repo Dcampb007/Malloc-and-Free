@@ -5,24 +5,20 @@
 // Will change upon more conversation with Dr. Bloom
 #include <iostream>
 #include <string>
-#include <vector>
 #include "heapsort-algorithm.cpp"
 using namespace std;
 void* Malloc(size_t size) {
     if (size == 0)
         return NULL;
-    int *array;
-    array = new (nothrow) int[size];
-    //array[0] = 1;
-    //cout << array[0];
+    void *array;
+    array = malloc(size);
     return array;
 }
-void Free(int* array) {
-    array = (int*) array;
+void Free(void* array) {
     if (array == 0)
         return;
     else {
-            delete[]  array;
+            free(array);
     }
 }
 
