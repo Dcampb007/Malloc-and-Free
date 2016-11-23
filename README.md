@@ -4,7 +4,7 @@ This README would normally document whatever steps are necessary to get your app
 
 ### What is this repository for? ###
 
-* Andre Campbell, William Bell, Satchin Campbell
+* Andre Campbell, William Bell, Satchin Campbell, Anasa Alamgir
 * Lethal Interjection
 * Computer Organization I
 * Dr. Bloom
