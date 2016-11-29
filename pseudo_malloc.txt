@@ -3,12 +3,12 @@ static ptr* head = null # has not been intialized yet
 static ptr* end = null
 malloc(number #ofbytestoadd){
     if(flag==false){
-        load word into a0
+        load 80 into a0
         syscall instruction 10 for sbrk
         load value of v0 into a0 for value of the pointer with the new heap
     }
     else{
-    Node node = head;
+        Node node = head;
         while(node->next!=null){//lets say we need 16 bytes to store something, meta data and all
             next=node->next;
             if(()&node+snode->size)-&next==16){//if there is enough space between the end of the node and the start of the next one then
@@ -19,7 +19,9 @@ malloc(number #ofbytestoadd){
             set the next node of the previous node to be the address of the new node
             set the previous node of the next node to be the address of the new node
             break
-            assign value of node pointer to next pointer//an increment of sorts
+            assign value of node pointer to next pointer//an increment of sort
+            update the pointer metadata with the size = to #ofbytes to be added
+            return pointer to the new node
             }
         }
         if(node->next==null){//ie if there is no space in that heap
@@ -27,9 +29,12 @@ malloc(number #ofbytestoadd){
             syscall instruction 10 for sbrk
             end_size=calculate size from end of end pointer node to the start of the new returned ptr in v0
             end-> size = size //this is done to skip the space in between which is not accessible
+            update the pointer metadata with the size = to #ofbytes to be added
+            return the head of the new heap since that'll be the first available location
         }
     }
 }
 
 NOTE: I AM UNSURE HOW MUCH SPACE WE GET FROM USING THE SBRK syscall. Based on how much er get we'd backtrack from the size by the size for the meta data and
       make size null and next null UNTIL sbrk is called again.
+      Apparently you put the number of bytes in a0.
