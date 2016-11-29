@@ -29,7 +29,7 @@ malloc(number #ofbytestoadd){
             end-> size = size //this is done to skip the space in between which is not accessible
         }
     }
-
-
-
 }
+
+NOTE: I AM UNSURE HOW MUCH SPACE WE GET FROM USING THE SBRK syscall. Based on how much er get we'd backtrack from the size by the size for the meta data and
+      make size null and next null UNTIL sbrk is called again.
