@@ -1,27 +1,44 @@
-static boolean flag = false # IT HASNT BEEN RUN YET
+Linked List Style
+Class definition of Node :
+------------------------------------------
+||      |PREVIOUS|NEXT   |NEXT |        ||
+|| SIZE |NODE    |NODE   |FREE | ELEMENT||
+||      |POINTER |POINTER|SPACE|        ||
+------------------------------------------
+
+static boolean flag = false #FIRST SBRK
 static ptr* head = null # has not been intialized yet
-static ptr* end = null
+static ptr* last = null
+static int defaultsbrkvalue # this will have default value that can be updated if the number of total elements is known before the first call to malloc
+
 malloc(number #ofbytestoadd){
     if(flag==false){
-        load 80 into a0
-        syscall instruction 10 for sbrk
-        load value of v0 into a0 for value of the pointer with the new heap
+        load defaultsbrkvalue into a0
+        syscall instruction 9 for sbrk
+
+        Node new_node = create new node starting at address of v0
+        new_node->size=defaultsbrkvalue
+        new_node->prev_node_ptr=null #since it's the head
+        new_node->next_node_ptr=null #since it's the only element
+        new_node->next_free_space=defaultsbrkvalue-(16+#ofbytestoadd)
+        new_node->element = 0 #initialize with all 0s
+        ptr* head = new_node
+        ptr* last = new_node
+        set flag to true
+        return new_node
     }
     else{
         Node node = head;
-        while(node->next!=null){//lets say we need 16 bytes to store something, meta data and all
-            next=node->next;
-            if(()&node+snode->size)-&next==16){//if there is enough space between the end of the node and the start of the next one then
-
-            store at &node+node->size//storing at the end of the node//do the storing
-            set the "previous" pointer value of the new node's metadata to be the address of node
-            set the "next" pointer value of the new node's metadata to be the address of the next node
-            set the next node of the previous node to be the address of the new node
-            set the previous node of the next node to be the address of the new node
-            break
-            assign value of node pointer to next pointer//an increment of sort
-            update the pointer metadata with the size = to #ofbytes to be added
-            return pointer to the new node
+        while(node->next!=null){
+            Node next_node=node->next;
+            if(node->nextfreespace>=(16+#ofbytestoadd)){//if there is enough space between the end of the node and the start of the next one then
+            Node new_node = location after node.
+            last->next=new_node ## last->next=&node+16+node->size # the new node will be put after node
+            new_node->previous=last
+            new_node->next = null
+            new_node->next_free_space=node->next_free_space - next_node->next_free_space
+            node->next_free_space=null
+            return new_node
             }
         }
         if(node->next==null){//ie if there is no space in that heap
