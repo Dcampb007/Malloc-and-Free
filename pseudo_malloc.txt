@@ -38,20 +38,19 @@ malloc(number #ofbytestoadd){
             new_node->next = null
             new_node->next_free_space=node->next_free_space - next_node->next_free_space
             node->next_free_space=null
+            last = new_node
             return new_node
             }
         }
         if(node->next==null){//ie if there is no space in that heap
-            then we load word into a0
-            syscall instruction 10 for sbrk
-            end_size=calculate size from end of end pointer node to the start of the new returned ptr in v0
-            end-> size = size //this is done to skip the space in between which is not accessible
-            update the pointer metadata with the size = to #ofbytes to be added
-            return the head of the new heap since that'll be the first available location
-        }
+            then we load defaultsbrkvalue into a0
+            syscall instruction 9 for sbrk
+            Node new_node = location in v0
+            new_node->next_node_ptr=null #since it's the only element
+            new_node->next_free_space=defaultsbrkvalue-(16+#ofbytestoadd)
+            last->next=new_node
+            #ERROR IN THIS BLOCK LEFT NEEDED
+            last = new_node
+            }
     }
 }
-
-NOTE: I AM UNSURE HOW MUCH SPACE WE GET FROM USING THE SBRK syscall. Based on how much er get we'd backtrack from the size by the size for the meta data and
-      make size null and next null UNTIL sbrk is called again.
-      Apparently you put the number of bytes in a0.
