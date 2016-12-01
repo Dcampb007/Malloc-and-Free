@@ -1,10 +1,10 @@
 Linked List Style
 Class definition of Node :
-------------------------------------------
-||      |PREVIOUS|NEXT   |NEXT |        ||
-|| SIZE |NODE    |NODE   |FREE | ELEMENT||
-||      |POINTER |POINTER|SPACE|        ||
-------------------------------------------
+------------------------------------------------
+||      |PREVIOUS|NEXT   |LEFT |NEXT |        ||
+|| SIZE |NODE    |NODE   |FREE |FREE | ELEMENT||
+||      |POINTER |POINTER|SPACE|SPACE|        ||
+------------------------------------------------
 
 static boolean flag = false #FIRST SBRK
 static ptr* head = null # has not been intialized yet
@@ -20,6 +20,7 @@ malloc(number #ofbytestoadd){
         new_node->size=defaultsbrkvalue
         new_node->prev_node_ptr=null #since it's the head
         new_node->next_node_ptr=null #since it's the only element
+        new_node->left_free_space=null#since located at start of heap
         new_node->next_free_space=defaultsbrkvalue-(16+#ofbytestoadd)
         new_node->element = 0 #initialize with all 0s
         ptr* head = new_node
@@ -32,14 +33,17 @@ malloc(number #ofbytestoadd){
         while(node->next!=null){
             Node next_node=node->next;
             if(node->nextfreespace>=(16+#ofbytestoadd)){//if there is enough space between the end of the node and the start of the next one then
-            Node new_node = location after node.
-            last->next=new_node ## last->next=&node+16+node->size # the new node will be put after node
-            new_node->previous=last
-            new_node->next = null
-            new_node->next_free_space=node->next_free_space - next_node->next_free_space
-            node->next_free_space=null
-            last = new_node
-            return new_node
+                Node new_node = location after node.
+                last->next=new_node ## last->next=&node+16+node->size # the new node will be put after node
+                new_node->previous=last
+                new_node->next = null
+                new_node->next_free_space=node->next_free_space - next_node->next_free_space
+                node->next_free_space=null
+                last = new_node
+                return new_node
+            }
+            if(node->left_free_space>=(16+#ofbytestoadd)){
+                
             }
         }
         if(node->next==null){//ie if there is no space in that heap
