@@ -6,13 +6,13 @@ insert_num: .asciiz " Enter a number thats non-zero."
 main:
 	la $a0, str   
 	li $v0, 4
-	syscall    # Output string messag
+	syscall    # Output string message
 	li $v0, 5
 	syscall # Read in int
 	or  $a0, $v0, $zero 
 	ori $s0, $zero, 16
 	mul $a0 $s0, $a0   # create enough space for x nodes plus 2 special (beginning and end)  
-	li $v0, 9
+	li $v0, 9   # allocate memory 
 	syscall
 	or $s0, $v0, $zero   # Move root pointer to $s0
 	add $s1, $a0, $s0    # Move end pointer to $s1 [MAYBE WRONG]
