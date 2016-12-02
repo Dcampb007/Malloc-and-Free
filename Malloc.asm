@@ -1,51 +1,44 @@
-.data
-
-str: .asciiz "Enter the amount of elements"
-insert_num: .asciiz " Enter a number thats non-zero." 
-LAST_NODE: .space 20
+.data 
+SbrkSize: .word 50
+MetadataSize: .word 12
+HeadNode: .space 32
 .text
-main:
-	la $a0, str   
-	li $v0, 4
-	syscall    # Output string message
-	li $v0, 5
-	syscall # Read in int
-	or  $a0, $v0, $zero 
-	ori $s0, $zero, 20
-	mul $a0 $s0, $a0   # create enough space for x nodes plus 2 special (beginning and end)  
-	li $v0, 9   # allocate memory 
-	syscall
-	or $s0, $v0, $zero   # Move root pointer to $s0
-	add $s1, $a0, $s0    # Move end pointer to $s1 [MAYBE WRONG]
-	or $s1, $a0, $zero   # Move space in s1
-	la $a0, insert_num
-	li $v0, 4
-	syscall           # Output string
-	li $v0, 5
-	syscall           # read int
-	#or $a0, $v0, $zero  # Move number into argument register
-	or $a0, $s1, $zero   # Move space back into a0
-	ori $a1, $zero, 1
-	jal add_node
-	
-add_node:
+Malloc:
+  # start_metadata = $t1, end_metadata = $t2, 
+	la $s0, MetadataSize   # Load MetadataSize
+	lw $s0, 0($s0)         # Load actual MetadataSize in $s0
+	la $s1, HeadNode       # Load HeadNode
+	la $s2, SbrkSize       # Load SbrkSize
+	lw $s2, 0($s2) 
 	beq $a1, $zero, not_first  # $a1 is the flag for the first call to malloc
 	or $a1, $zero, $zero   # Reset a1 to zero (NO LONGER FIRST CALL)
-	or $t0, $zero, $s0     # Put starting memory address in $t0
-	ori $t4, $zero, 24     # 
-	sw $t4, 0($t0)       # Save [size] in first first 4 bytes of node
-	sw $zero, 4($t0)     # Save [0] in Prev* PTR
-	sw $zero, 8($t0)     # Save [0] in Next* PTR
-	subi $t1, $a0, 24    # Subtract full size of node from sbrk size
-	sw $zero, 12($t0)     # Store 0 in head->left-FreeSpace(bytes)
-	sw $t1, 16($t0)       # Store free space in head->Right-FreeSpace (bytes)
-	#sw $a0, 16($t0)      # Save [number] in Number 
-	or $v0, $t0, $zero    # Store address of node in $v0
-	la $t1, LAST_NODE     # Load address of the last node in LL
-	or $v0, $t1, $zero           # Save the pointer to the last node in the space in memory for the last node
-	jr $ra
+	or $t0, $a0, $zero     # store user_size in a temp register
+	lw $t1, 0($s2)         # load integer into $t1 (50) from SbrkSize
+	mul $a0,$t1,$a0        # Multiply user_size * SbrkSize
+	li $v0, 9              # allocate memory for heap
+	syscall 
+	beq $v0, $t1, error_happened # Branch if sbrk didn't work
+	or $a0, $t0, $zero     # Put user_size back into $a0
+	or $t1, $v0, $zero     # Put start_metadata node address in $t1
+	sw $t1, 0($s1)         # Save node into HeadNode memory location
+	sw $zero, 0($t1)       # Save 0 in start_metadata->size 
+	sw $zero, 4($t1)       # node->prev = NULL
+	add $t2, $t1, $s0      # new_node = start_metadata + 12
+	sw $t2, 8($t1)         # start_metadata->next = new_node
+	sw $t1, 4($t2)         # new_node->prev = start_metadata
+	sw $a0, 0($t2)         # new_node->size = user_size
+	add $t0, $t1, $a0      # add start_metadata + $a0
+	sub $t0, $t0, $s0      # end_metadata = start_metadata + $a0 - METADATASIZE
+	or $t1, $t2, $zero     # move new_node into $t1
+	add_end_metadata:
+		sw $zero, 8($t0)    # end_metadata->next = NULL
+		sw $t1, 4($t0)      # end_metadata->prev = new_node
+		sw $t0, 8($t1)      # node->next = end_metadata
+		add $t1, $t1, $s0   # get address of new_node->element
+		or $v0, $t1, $zero  # put new_node->element into $v0
+		jr $ra
 	not_first:
-		or $t1, $s0, $zero   # move head node address in $t1 (temp)
+		or $t1, $s1, $zero   # move head node address in $t1 (temp)
 		while_loop:     # While current->next != NULL 
 		lw $t2, 8($t1)        # load current->next*PTR
 		beq $t2, $zero, found_end
