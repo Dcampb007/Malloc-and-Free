@@ -1,0 +1,25 @@
+void free ( *ptr);
+A block of memory previously allocated by a call to malloc is deallocated, making it
+available again for further allocations. If ptr does not point to a block of memory
+allocated with malloc, it causes undefined behavior. If ptr is a null pointer, the function
+does nothing. Notice that this function does not change the value of ptr itself, hence it still
+points to the same (now invalid) location.
+You will want to use the sbrk syscall as part of your solution, but only use it when
+needed.
+
+
+int ptr* pointer
+
+void free( int *ptr){               // Check it the data that the node points to is 0. if so do nothing
+  if(ptr == NULL){                  // 
+    return;
+  }
+  else{
+    ptr->prev->next = ptr->next;
+    ptr->next->prev = ptr->prev;
+    ptr->info = NULL;
+  }
+}
+
+
+
