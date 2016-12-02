@@ -1,0 +1,18 @@
+------------------------------------
+||      |PREVIOUS|NEXT   |        ||
+|| SIZE |NODE    |NODE   | ELEMENT||
+||      |POINTER |POINTER|        ||
+------------------------------------
+0       4        8        12       16
+
+void free (* ptr){
+    if(!ptr){//if ptr == 0
+        return;
+    }
+    else{
+        Node node = ptr - 12;
+        node->prev->next=node->next
+        node->next->prev=node->prev
+        return
+    }
+}

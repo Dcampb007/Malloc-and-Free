@@ -5,7 +5,6 @@ Class definition of Node :
 || SIZE |NODE    |NODE   | ELEMENT||
 ||      |POINTER |POINTER|        ||
 ------------------------------------
-
 static boolean firstSbrk = true  //FIRST SBRK ($a1)
 Node* global_head = NULL  //has not been intialized yet
 const int METADATASIZE = 12
