@@ -8,18 +8,43 @@ You will want to use the sbrk syscall as part of your solution, but only use it 
 needed.
 
 
-int ptr* pointer
+Node Organization:
+  20 bytes: 16 byte metadata, 4 byte element
+    1. size
+    2. next node address
+    3. prev node address
+    4. free space to left
+    5. free space to right
+    5. element
 
-void free( int *ptr){               // Check it the data that the node points to is 0. if so do nothing
-  if(ptr == NULL){                  // 
-    return;
-  }
-  else{
-    ptr->prev->next = ptr->next;
-    ptr->next->prev = ptr->prev;
-    ptr->info = NULL;
-  }
-}
+-----------------------------------------------
+||      |PREVIOUS|NEXT   |LEFT |RIGHT|       ||
+|| SIZE |NODE    |NODE   |FREE |FREE |ELEMENT||
+||      |POINTER |POINTER|SPACE|SPACE|       ||
+-----------------------------------------------
 
 
+check if NULL pointer:
+  check if first byte is 0
+  if NULL pointer return without doing anything
+
+check if last node: 
+  change the last node to previous node
+  change the prev node next to node next
+  change node next to prev node
+  change the free space of left to the size of this node + free space of this node
+
+else
+  change prev node next to next node
+  change next node prev to prev node
+  change the free space in the node to left to size of thise node + free space of this node
+
+
+
+
+if word at argument address == 0:
+  return # j ra
+if address->next(address w/ 2 word offset) == 0:
+ 
+  
 
