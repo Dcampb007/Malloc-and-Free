@@ -42,9 +42,9 @@ add_end_metadata:
         Node* temp = global_head; // Used to traverse through LL
         Node* new_node; // Used to insert new node into LL
         while(temp->next!=NULL){ // while temp != the end of the sbrk
-            if((temp->next - temp) - (new_node->size + METADATASIZE) >= $a0 + METADATASIZE ){ // If there is enough space b/w the two nodes
+            if((temp->next - (temp + temp->size + METADATASIZE) >= $a0 + METADATASIZE ){ // If there is enough space b/w the two nodes
                 new_node = temp + temp->size + METADATASIZE // new_node address is temp's address + temp's size  + METADATASIZE
-                new_node->IsStartofSbrk = 0  // set it to 0 because it's not a start
+                new_node->size = $a0 // Save size into new_node->size
                 new_node->next = temp->next; // set new_node's next to temp's next
                 new_node->prev = temp; // set new_node's previous to temp
                 temp->next = new_node; // set temp's next to new_node
