@@ -1,20 +1,32 @@
 Linked List Style
 Class definition of Node :
-------------------------------------------------
-||      |PREVIOUS|NEXT   |LEFT |NEXT |        ||
-|| SIZE |NODE    |NODE   |FREE |FREE | ELEMENT||
-||      |POINTER |POINTER|SPACE|SPACE|        ||
-------------------------------------------------
 
-static boolean flag = false #FIRST SBRK
-static ptr* head = null # has not been intialized yet
-static ptr* last = null
-static int defaultsbrkvalue # this will have default value that can be updated if the number of total elements is known before the first call to malloc
+------------------------------------------
+||      |PREVIOUS|NEXT   |   IS    |        ||
+|| SIZE |NODE    |NODE   |START OF | ELEMENT||
+||      |POINTER |POINTER|  SBRK   |        ||
+------------------------------------------
+
+static boolean firstSbrk = true  //FIRST SBRK ($a1)
+Node* global_head = NULL  //has not been intialized yet
+const int METADATASIZE = 16
+static int DEFAULTSBRKVALUE  = 25 // temp value
 
 malloc(number #ofbytestoadd){
-    if(flag==false){
-        load defaultsbrkvalue into a0
+    if(firstSbrk){
+        int user_size = $a0 // save user size
+        $a0 =  DEFAULTSBRKVALUE * $user_size // make enough space for more than what they ask for
         syscall instruction 9 for sbrk
+        if($v0 == -1) {
+            return -1 // output error, sbrk failed
+        }
+        $a0 = user_size // reestablish the user_size in $a0
+        Node* new_node = $v0 // memory address in $v0
+        new_node->size= $a0 // Size called with malloc
+        new_node->prev= NULL // since it's the head
+        new_node->next= NULL // since it's the only element
+
+add_new_first_sbrk_node:
 
         Node new_node = create new node starting at address of v0
         new_node->size=defaultsbrkvalue
@@ -43,18 +55,23 @@ malloc(number #ofbytestoadd){
                 return new_node
             }
             if(node->left_free_space>=(16+#ofbytestoadd)){
-                
+            
             }
+            temp = temp->next;
         }
-        if(node->next==null){//ie if there is no space in that heap
-            then we load defaultsbrkvalue into a0
-            syscall instruction 9 for sbrk
-            Node new_node = location in v0
-            new_node->next_node_ptr=null #since it's the only element
-            new_node->next_free_space=defaultsbrkvalue-(16+#ofbytestoadd)
-            last->next=new_node
-            #ERROR IN THIS BLOCK LEFT NEEDED
-            last = new_node
+        if(temp->next==NULL){//ie if there is no space in that heap
+            int user_size = $a0 // temp store user size
+            $a0 = DEFAULTSBRKVALUE * user_size // make sure size is bigger than what user is asking for
+            syscall instruction 9 for sbrk // get more space
+            if($v0 == -1) {
+                return -1 // output error, sbrk failed
+            }
+            Node* new_node = $v0 // new_node is the memory address in $v0
+            temp->next = new_node // set previous end_metadata to point to start of new sbrk
+            new_node->size = user_size // store size of element
+            new_node->prev = temp // new start of sbrk's prev = old end_metadata
+            $a0 = user_size  // load original user asked size into $a0
+            j add_new_first_sbrk_node // jump to label to add new first node
             }
     }
 }
