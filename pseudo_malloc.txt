@@ -1,18 +1,19 @@
 Linked List Style
 Class definition of Node :
-------------------------------------------
-||      |PREVIOUS|NEXT   |   IS    |        ||
-|| SIZE |NODE    |NODE   |START OF | ELEMENT||
-||      |POINTER |POINTER|  SBRK   |        ||
-------------------------------------------
+------------------------------------
+||      |PREVIOUS|NEXT   |        ||
+|| SIZE |NODE    |NODE   | ELEMENT||
+||      |POINTER |POINTER|        ||
+------------------------------------
 
 static boolean firstSbrk = true  //FIRST SBRK ($a1)
 Node* global_head = NULL  //has not been intialized yet
-const int METADATASIZE = 16
-static int DEFAULTSBRKVALUE  = 25 // temp value
+const int METADATASIZE = 12
+static int DEFAULTSBRKVALUE  = 50 // temp value
 
 malloc(number #ofbytestoadd){
     if(firstSbrk){
+        firstSbrk = false // won't sbreak the first time anymore
         int user_size = $a0 // save user size
         $a0 =  DEFAULTSBRKVALUE * $user_size // make enough space for more than what they ask for
         syscall instruction 9 for sbrk
@@ -20,32 +21,35 @@ malloc(number #ofbytestoadd){
             return -1 // output error, sbrk failed
         }
         $a0 = user_size // reestablish the user_size in $a0
-        Node* new_node = $v0 // memory address in $v0
+        start_metadata* = $v0 // start metadata = $v0
+        global_head = start_metadata  // set head = start metadata
+        Node* new_node = start_metadata + 12 // new_node metadata starts here
+        start_metadata->size = 0 // indicates start of an sbrk
+        start_metadata->prev = NULL // indicates start of head
+        start_metadata->next = new_node 
         new_node->size= $a0 // Size called with malloc
-        new_node->prev= NULL // since it's the head
+        new_node->prev= start_metadata // since it's the head
         new_node->next= NULL // since it's the only element
 
-add_new_first_sbrk_node:
-
-        new_node->IsStartofSbrk = -1 // set this to -1 if it's the start of an sbrk region
-        new_node->element = 0 //initialize with all 0s (Could be a while loop and set each byte to 0)
-        Node* end_metadata = new_node + $a0 - METADATASIZE; // end_node address for the first Sbrk
+add_end_metadata:
+        Node* end_metadata = start_metadata + $a0 - METADATASIZE; // end_node address for the first Sbrk
         end_metadata->next = NULL // the end_metadata's next doesn't point to anything
+        end_metadata->size = -1 // indicates end of a sbrk
         end_metadata->prev = new_node // make the end_metadata's previous point to head
         new_node->next = end_metadata // set new_node->next  to be the end metadata
-        firstSbrk = false // won't sbreak the first time anymore
-        return new_node
+        return new_node+12
     }
     else{
         Node* temp = global_head; // Used to traverse through LL
         Node* new_node; // Used to insert new node into LL
         while(temp->next!=NULL){ // while temp != the end of the sbrk
-            if((temp->next - temp) - (new_node->size + METADATASIZE) >= $a0 ){ // If there is enough space b/w the two nodes
+            if((temp->next - temp) - (new_node->size + METADATASIZE) >= $a0 + METADATASIZE ){ // If there is enough space b/w the two nodes
                 new_node = temp + temp->size + METADATASIZE // new_node address is temp's address + temp's size  + METADATASIZE
+                new_node->IsStartofSbrk = 0  // set it to 0 because it's not a start
                 new_node->next = temp->next; // set new_node's next to temp's next
                 new_node->prev = temp; // set new_node's previous to temp
                 temp->next = new_node; // set temp's next to new_node
-                return new_node // return new_node address
+                return new_node+12 // return new_node address
             }
             temp = temp->next;
         }
@@ -57,10 +61,17 @@ add_new_first_sbrk_node:
                 return -1 // output error, sbrk failed
             }
             Node* new_node = $v0 // new_node is the memory address in $v0
-            temp->next = new_node // set previous end_metadata to point to start of new sbrk
-            new_node->size = user_size // store size of element
-            new_node->prev = temp // new start of sbrk's prev = old end_metadata
+            start_metadata* = $v0 // make new start metadata
+            start_metadata* = $v0 // start metadata = $v0
+            Node* new_node = start_metadata + 12 // new_node metadata starts here
+            start_metadata->size = 0 // indicates start of an sbrk
+            start_metadata->prev = temp // new start of sbrk's prev = old end metadata
+            start_metadata->next = new_node 
             $a0 = user_size  // load original user asked size into $a0
+            new_node->size= $a0 // Size called with malloc
+            new_node->prev= start_metadata // since it's the head
+            temp->next = start_metadata // set previous end_metadata to point to start of new sbrk
+            new_node->size = user_size // store size of element
             j add_new_first_sbrk_node // jump to label to add new first node
             }
     }
