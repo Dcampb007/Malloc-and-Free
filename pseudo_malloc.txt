@@ -5,6 +5,27 @@ Class definition of Node :
 || SIZE |NODE    |NODE   | ELEMENT||
 ||      |POINTER |POINTER|        ||
 ------------------------------------
+
+Node Cases
+
+First Meta Data
+---------------
+Size = 0
+Prev = 0
+Next =
+
+Tail Meta Data
+---------------
+Size = -1
+Prev = ??
+Next = 0
+
+Normal Node
+-----------
+Size= ??? (Positive Integer)
+Prev = ??? (not 0)
+Next = ??? (not 0)
+
 static boolean firstSbrk = true  //FIRST SBRK ($a1)
 Node* global_head = NULL  //has not been intialized yet
 const int METADATASIZE = 12
@@ -25,7 +46,7 @@ malloc(number #ofbytestoadd){
         Node* new_node = start_metadata + 12 // new_node metadata starts here
         start_metadata->size = 0 // indicates start of an sbrk
         start_metadata->prev = NULL // indicates start of head
-        start_metadata->next = new_node 
+        start_metadata->next = new_node
         new_node->size= $a0 // Size called with malloc
         new_node->prev= start_metadata // since it's the head
         new_node->next= NULL // since it's the only element
@@ -65,7 +86,7 @@ add_end_metadata:
             Node* new_node = start_metadata + 12 // new_node metadata starts here
             start_metadata->size = 0 // indicates start of an sbrk
             start_metadata->prev = temp // new start of sbrk's prev = old end metadata
-            start_metadata->next = new_node 
+            start_metadata->next = new_node
             $a0 = user_size  // load original user asked size into $a0
             new_node->size= $a0 // Size called with malloc
             new_node->prev= start_metadata // since it's the head
