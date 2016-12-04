@@ -19,3 +19,11 @@ free:
     sw $t3 ,0($t4) #store location of current node previous to next node previous
 nullptr:
     jr $ra
+
+#Potential Optimization
+#For phase two of testing
+#addi $t0, $a0, -12 # current node
+#lw $t3, 4($t0)   #previous node
+#lw $t4, 8($t0)   #next node
+#sw $t4, 8($t3)  #store current next node in previous node -> next
+#sw $t3, 4($t4)   #previous node
