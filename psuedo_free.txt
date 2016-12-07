@@ -4,7 +4,8 @@
 ||      |POINTER |POINTER|        ||
 ------------------------------------
 0       4        8        12       16
-
+^
+byte locations/offsets
 void free (* ptr){
     if(!ptr){//if ptr == 0
         return;
