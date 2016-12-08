@@ -9,7 +9,6 @@ number_prompt: .asciiz "Please enter and integer"
 SbrkSize: .word 50
 MetadataSize: .word 12
 HeadNode: .space 32
-array: .word 54, 23, 56, 32, 99, 7, 4, 2, 88, 9, 11, 21, 39, 55, 100, 101, 43, 1, 3, 69, -5, -24, -17, 0 #24 numbers
 size: .word 24
 space: .asciiz " "
 newline: .asciiz "\n"
@@ -56,7 +55,7 @@ endstoreloop:
 	sw $0, 0($t3)
 	addi $sp, $sp, -4
 	sw $ra, 0($sp) # save return address on stack
-	addi $a0, $v0, 0
+	addi $a0, $t0, 0
     addi $a1, $s3, 0
     jal heapsort
 	lw $ra, 0($sp) # restore return address in $ra
