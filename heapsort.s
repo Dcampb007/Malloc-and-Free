@@ -36,7 +36,7 @@ main:
 	addi $sp, $sp, 4 # restore stack
 	addi $t0, $v0, 0 # store array pointer at t0
 	# loop for elements and store
-	addi $t1, $t1, 0 # counter
+	or $t1, $zero,$zero  # counter
 	addi $t3, $t0, 0 # address counter
 storeloop:
 	slt $t2, $t1, $s3
@@ -166,8 +166,8 @@ bubble_down: # a0 = &array, a1 = start_index, a2 = end_index    #ra = make_heap_
 
   Malloc:
     # start_metadata = $t1, end_metadata = $t2, $a0 contains user_size, $a1 contains first sbrk flag
-    ble $a0, $zero, bad_size_or_sbrk_failed
-	la $s0, MetadataSize   # Load MetadataSize
+    	ble $a0, $zero, bad_size_or_sbrk_failed
+  	la $s0, MetadataSize   # Load MetadataSize
   	lw $s0, 0($s0)         # Load actual MetadataSize in $s0
   	la $s1, HeadNode       # Load HeadNode
   	la $s2, SbrkSize       # Load SbrkSize
@@ -175,7 +175,7 @@ bubble_down: # a0 = &array, a1 = start_index, a2 = end_index    #ra = make_heap_
   	beq $a1, $zero, not_first  # $a1 is the flag for the first call to malloc
   	or $a1, $zero, $zero   # Reset a1 to zero (NO LONGER FIRST CALL)
   	or $t0, $a0, $zero     # store user_size in a temp register
-  	ori $t1, $s2, 0         # load integer into $t1 (50) from SbrkSize
+  	or $t1, $s2, $zero     # Move $s2 into t1
   	mul $a0,$t1,$a0        # Multiply user_size * SbrkSize
   	or $t6, $a0, $zero     # put user_size * SbrkSize in $t6
   	li $v0, 9              # allocate memory for heap
