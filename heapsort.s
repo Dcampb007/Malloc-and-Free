@@ -31,6 +31,7 @@ main:
 	addi $sp, $sp, -4
 	sw $ra, 0($sp) # save return address on stack
 	jal Malloc
+	or $s4, $v0, $zero  # move &array into $s4
 	lw $ra, 0($sp) # restore return address in $ra
 	addi $sp, $sp, 4 # restore stack
 	addi $t0, $v0, 0 # store array pointer at t0
@@ -55,11 +56,9 @@ endstoreloop:
 	sw $0, 0($t3)
 	addi $sp, $sp, -4
 	sw $ra, 0($sp) # save return address on stack
-	addi $a0, $t0, 0
+	or $a0, $s4, $zero  # move &array into $a0
     addi $a1, $s3, 0
     jal heapsort
-	lw $ra, 0($sp) # restore return address in $ra
-	addi $sp, $sp, 4 # restore stack
     move $t0, $a0  # print the array
     add $t1, $zero, $zero
 	printloop:
@@ -76,6 +75,10 @@ endstoreloop:
 	    la $a0, newline
 	    syscall
 	done:
+		or $a0, $s4, $zero # put &array into $a0
+		jal free
+		lw $ra, 0($sp) # restore return address in $ra
+		addi $sp, $sp, 4 # restore stack
 	    jr $ra
 heapsort: # a0 = &array, a1 = size(array)
     addi $sp, $sp, -12  # was -8,
@@ -182,7 +185,8 @@ bubble_down: # a0 = &array, a1 = start_index, a2 = end_index    #ra = make_heap_
   	ble $v0, $zero, bad_size_or_sbrk_failed # Branch if sbrk didn't work
   	or $a0, $t0, $zero     # Put user_size back into $a0
   	or $t1, $v0, $zero     # Put start_metadata node address in $t1
-  	sw $t1, 0($s1)         # Save node into HeadNode memory location
+  	or $s1, $t1, $zero     # put $t1 into HeadNode
+  #	sw $t1, 0($s1)         # Save node into HeadNode memory location
   	sw $zero, 0($t1)       # Save 0 in start_metadata->size
   	sw $zero, 4($t1)       # node->prev = NULL
   	add $t2, $t1, $s0      # new_node = start_metadata + 12
@@ -251,3 +255,22 @@ bubble_down: # a0 = &array, a1 = start_index, a2 = end_index    #ra = make_heap_
   bad_size_or_sbrk_failed:
   	or $v0, $zero, $zero      # Load zero into return register
   	jr $ra
+
+
+
+  free:
+    beq $a0, $0, nullptr
+    #store address of start of node meta in t0
+    addi $t0, $a0, -12 # a0 stores argument pointer to be freed
+    addi $t1, $t0, 4 # previous address is stored here
+    addi $t2, $t0, 8 # next address is stored here
+    lw $t3, 0($t1)   # previous node
+    lw $t4, 0($t2)   # next node
+    addi $t3, $t3, 8 # location of previous node next
+    sw $t4, 0($t3) # update previous node next to current node next
+    addi $t4, $t4, 4 # location of next node previous
+    addi $t3, $t3, -8 # restore location of previous-node->next to &(previous-node)
+    sw $t3 ,0($t4) #store location of current node previous to next node previous
+nullptr:
+    jr $ra
+
