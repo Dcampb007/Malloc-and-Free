@@ -1,4 +1,4 @@
-.data 
+.data
 SbrkSize: .word 50
 MetadataSize: .word 12
 HeadNode: .space 32
@@ -10,20 +10,20 @@ Malloc:
 	lw $s0, 0($s0)         # Load actual MetadataSize in $s0
 	la $s1, HeadNode       # Load HeadNode
 	la $s2, SbrkSize       # Load SbrkSize
-	lw $s2, 0($s2) 
+	lw $s2, 0($s2)
 	beq $a1, $zero, not_first  # $a1 is the flag for the first call to malloc
 	or $a1, $zero, $zero   # Reset a1 to zero (NO LONGER FIRST CALL)
 	or $t0, $a0, $zero     # store user_size in a temp register
-	lw $t1, 0($s2)         # load integer into $t1 (50) from SbrkSize
+	ori $t1, $s2, 0         # load integer into $t1 (50) from SbrkSize
 	mul $a0,$t1,$a0        # Multiply user_size * SbrkSize
 	or $t6, $a0, $zero     # put user_size * SbrkSize in $t6
 	li $v0, 9              # allocate memory for heap
-	syscall 
+	syscall
 	ble $v0, $zero, bad_size_or_sbrk_failed # Branch if sbrk didn't work
 	or $a0, $t0, $zero     # Put user_size back into $a0
 	or $t1, $v0, $zero     # Put start_metadata node address in $t1
 	sw $t1, 0($s1)         # Save node into HeadNode memory location
-	sw $zero, 0($t1)       # Save 0 in start_metadata->size 
+	sw $zero, 0($t1)       # Save 0 in start_metadata->size
 	sw $zero, 4($t1)       # node->prev = NULL
 	add $t2, $t1, $s0      # new_node = start_metadata + 12
 	sw $t2, 8($t1)         # start_metadata->next = new_node
@@ -43,7 +43,7 @@ Malloc:
 		jr $ra
 	not_first:
 		la $t1, HeadNode     # Load first start_metadata into $t1 (temp)
-		while_loop:     # While current->next != NULL 
+		while_loop:     # While current->next != NULL
 		lw $t2, 8($t1)        # load current->next*PTR
 		beq $t2, $zero, make_sbreak
 		lw $t3, 0($t1)        # load current->size into $t3
@@ -63,9 +63,9 @@ Malloc:
 		sw $t1, 4($t4)        # new_node->prev = current
 		sw $t4, 8($t1)        # current->next = new_node
 		add $v0, $t4, $s0     # $v0 = new_node->&(element)
-		jr $ra      
-		         
-	
+		jr $ra
+
+
 	make_sbreak:
 		# $t1 = temp, $t2 = temp->next
 		or $t0, $a0, $zero    # $t0 = user_size
@@ -79,7 +79,7 @@ Malloc:
 		sw $t1, 4($t4)        # start_metadata->prev = temp
 		or $t5, $t4, $s0      # new_node = &(start_metadata) + 12
 		sw $t5, 8($t4)        # start_metadata->next = new_node
-		or $a0, $t0, $zero    # $a0 = user_size 
+		or $a0, $t0, $zero    # $a0 = user_size
 		sw $a0, 0($t5)        # new_node->size = user_size
 		sw $t4, 4($t5)        # new_node->prev = start_metadata
 		sw $t4, 8($t1)        # temp->next = start_metadata
@@ -90,12 +90,11 @@ Malloc:
 
 bad_size_or_sbrk_failed:
 	or $v0, $zero, $zero      # Load zero into return register
-	jr $ra	
-		
+	jr $ra
+
 
 # Accessing Node data members:
 	# Accessing node size: node*ptr + 0
-	# Accessing previousPTR: node* ptr + 4 
+	# Accessing previousPTR: node* ptr + 4
 	# Accessing nextPTR: node* ptr + 8
 	# Accessing element: node* ptr + 12
-

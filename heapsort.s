@@ -23,8 +23,8 @@ main:
 	# storing numelements
 	addi $v0, $0, 5
 	syscall
-	addi $s0, $v0, 0 # store num elements as first argument for malloc
-	addi $a0, $s0, 1 # extra element for null terminating 0
+	addi $s3, $v0, 0 # store num elements as first argument for malloc
+	addi $a0, $s3, 1 # extra element for null terminating 0
 	addi $t2, $0, 4
 	mul $a0, $a0, $t2 # multiply by four to get number of bytes necessary
 	addi $a1, $0, 1 # 1 for first call to malloc
@@ -39,7 +39,7 @@ main:
 	addi $t1, $t1, 0 # counter
 	addi $t3, $t0, 0 # address counter
 storeloop:
-	slt $t2, $t1, $s0
+	slt $t2, $t1, $s3
 	beq $t2, $0, endstoreloop
 	#prompt
 	la $a0, number_prompt # prompt for number
@@ -57,7 +57,7 @@ endstoreloop:
 	addi $sp, $sp, -4
 	sw $ra, 0($sp) # save return address on stack
 	addi $a0, $v0, 0
-    addi $a1, $s0, 0
+    addi $a1, $s3, 0
     jal heapsort
 	lw $ra, 0($sp) # restore return address in $ra
 	addi $sp, $sp, 4 # restore stack
@@ -166,8 +166,8 @@ bubble_down: # a0 = &array, a1 = start_index, a2 = end_index    #ra = make_heap_
 
   Malloc:
     # start_metadata = $t1, end_metadata = $t2, $a0 contains user_size, $a1 contains first sbrk flag
-    	ble $a0, $zero, bad_size_or_sbrk_failed
-  	la $s0, MetadataSize   # Load MetadataSize
+    ble $a0, $zero, bad_size_or_sbrk_failed
+	la $s0, MetadataSize   # Load MetadataSize
   	lw $s0, 0($s0)         # Load actual MetadataSize in $s0
   	la $s1, HeadNode       # Load HeadNode
   	la $s2, SbrkSize       # Load SbrkSize
@@ -175,7 +175,7 @@ bubble_down: # a0 = &array, a1 = start_index, a2 = end_index    #ra = make_heap_
   	beq $a1, $zero, not_first  # $a1 is the flag for the first call to malloc
   	or $a1, $zero, $zero   # Reset a1 to zero (NO LONGER FIRST CALL)
   	or $t0, $a0, $zero     # store user_size in a temp register
-  	lw $t1, 0($s2)         # load integer into $t1 (50) from SbrkSize
+  	ori $t1, $s2, 0         # load integer into $t1 (50) from SbrkSize
   	mul $a0,$t1,$a0        # Multiply user_size * SbrkSize
   	or $t6, $a0, $zero     # put user_size * SbrkSize in $t6
   	li $v0, 9              # allocate memory for heap
