@@ -4,8 +4,8 @@
 # An implementation of heapsort algorithm #
 .data
 # the array that holds unordered data
-elements_prompt: .asciiz "Please enter how many elements you would like to be sorted:"
-number_prompt: .asciiz "Please enter and integer"
+elements_prompt: .asciiz "Please enter how many elements you would like to be sorted: "
+number_prompt: .asciiz "Please enter an integer "
 SbrkSize: .word 50
 MetadataSize: .word 12
 HeadNode: .space 32
@@ -24,9 +24,9 @@ main:
 	syscall
 	addi $s3, $v0, 0 # store num elements as first argument for malloc
 	addi $a0, $s3, 1 # extra element for null terminating 0
-	addi $t2, $0, 4
+	addi $t2, $zero, 4
 	mul $a0, $a0, $t2 # multiply by four to get number of bytes necessary
-	addi $a1, $0, 1 # 1 for first call to malloc
+	addi $a1, $zero, 1 # 1 for first call to malloc
 	# call to malloc
 	addi $sp, $sp, -4
 	sw $ra, 0($sp) # save return address on stack
@@ -34,18 +34,18 @@ main:
 	or $s4, $v0, $zero  # move &array into $s4
 	lw $ra, 0($sp) # restore return address in $ra
 	addi $sp, $sp, 4 # restore stack
-	addi $t0, $v0, 0 # store array pointer at t0
+	or $t0, $v0, $zero # store array pointer at t0
 	# loop for elements and store
 	or $t1, $zero,$zero  # counter
-	addi $t3, $t0, 0 # address counter
+	or  $t3, $t0, $zero # address counter
 storeloop:
 	slt $t2, $t1, $s3
-	beq $t2, $0, endstoreloop
+	beq $t2, $zero, endstoreloop
 	#prompt
 	la $a0, number_prompt # prompt for number
-	addi $v0, $0, 4
+	addi $v0, $zero, 4
 	syscall
-	addi $v0, $0, 5 # read interger
+	addi $v0, $zero, 5 # read interger
 	syscall
 	sw $v0, 0($t3)
 	addi $t3, $t3, 4 # update t4 to next location
@@ -53,11 +53,11 @@ storeloop:
 	j storeloop
 endstoreloop:
 	#add the null terminating 0
-	sw $0, 0($t3)
+	sw $zero, 0($t3)
 	addi $sp, $sp, -4
 	sw $ra, 0($sp) # save return address on stack
 	or $a0, $s4, $zero  # move &array into $a0
-    addi $a1, $s3, 0
+    or  $a1, $s3, $zero
     jal heapsort
     move $t0, $a0  # print the array
     add $t1, $zero, $zero
@@ -79,7 +79,8 @@ endstoreloop:
 		jal free
 		lw $ra, 0($sp) # restore return address in $ra
 		addi $sp, $sp, 4 # restore stack
-	    jr $ra
+	    li $v0, 10
+	    syscall
 heapsort: # a0 = &array, a1 = size(array)
     addi $sp, $sp, -12  # was -8,
     sw $a1, 0($sp)  # save size
@@ -168,7 +169,7 @@ bubble_down: # a0 = &array, a1 = start_index, a2 = end_index    #ra = make_heap_
 
   Malloc:
     # start_metadata = $t1, end_metadata = $t2, $a0 contains user_size, $a1 contains first sbrk flag
-    	ble $a0, $zero, bad_size_or_sbrk_failed
+    ble $a0, $zero, bad_size_or_sbrk_failed
   	la $s0, MetadataSize   # Load MetadataSize
   	lw $s0, 0($s0)         # Load actual MetadataSize in $s0
   	la $s1, HeadNode       # Load HeadNode
@@ -186,7 +187,6 @@ bubble_down: # a0 = &array, a1 = start_index, a2 = end_index    #ra = make_heap_
   	or $a0, $t0, $zero     # Put user_size back into $a0
   	or $t1, $v0, $zero     # Put start_metadata node address in $t1
   	or $s1, $t1, $zero     # put $t1 into HeadNode
-  #	sw $t1, 0($s1)         # Save node into HeadNode memory location
   	sw $zero, 0($t1)       # Save 0 in start_metadata->size
   	sw $zero, 4($t1)       # node->prev = NULL
   	add $t2, $t1, $s0      # new_node = start_metadata + 12
@@ -206,7 +206,8 @@ bubble_down: # a0 = &array, a1 = start_index, a2 = end_index    #ra = make_heap_
   		or $v0, $t1, $zero  # put new_node->element into $v0
   		jr $ra
   	not_first:
-  		la $t1, HeadNode     # Load first start_metadata into $t1 (temp)
+
+  		or $t1, $s1, $zero  # Load first start_metadata into $t1 (temp)
   		while_loop:     # While current->next != NULL
   		lw $t2, 8($t1)        # load current->next*PTR
   		beq $t2, $zero, make_sbreak
@@ -257,20 +258,14 @@ bubble_down: # a0 = &array, a1 = start_index, a2 = end_index    #ra = make_heap_
   	jr $ra
 
 
-
-  free:
+free:
     beq $a0, $0, nullptr
+#else
     #store address of start of node meta in t0
-    addi $t0, $a0, -12 # a0 stores argument pointer to be freed
-    addi $t1, $t0, 4 # previous address is stored here
-    addi $t2, $t0, 8 # next address is stored here
-    lw $t3, 0($t1)   # previous node
-    lw $t4, 0($t2)   # next node
-    addi $t3, $t3, 8 # location of previous node next
-    sw $t4, 0($t3) # update previous node next to current node next
-    addi $t4, $t4, 4 # location of next node previous
-    addi $t3, $t3, -8 # restore location of previous-node->next to &(previous-node)
-    sw $t3 ,0($t4) #store location of current node previous to next node previous
+    addi $t0, $a0, -12 # current node
+    lw $t3, 4($t0)   #previous node location in t3
+    lw $t4, 8($t0)   #next node location in t4
+    sw $t4, 8($t3)  #store current next node in previous node -> next
+    sw $t3, 4($t4)   #store current previous node in next node -> previous
 nullptr:
     jr $ra
-
