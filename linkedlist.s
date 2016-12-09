@@ -4,17 +4,6 @@ MetadataSize: .word 12
 HeadNode: .space 32
 .text
 main:
-  # node:
-  # next address
-  # int element
-  # call malloc with the 8
-  # store the address
-  #
-  # call malloc again with 8
-  # store again
-  # save the address of the next node at head of first node
-  # 4(head) save int element
-
   li $a0, 8              # load 8 into a0
   addi $sp, $sp, -4
   sw $ra, 0($sp)
@@ -29,7 +18,7 @@ main:
   add $t0, $zero, $zero
   sw $t0, 0($s7)         # Save Null character into next section of second node
   addi $t0, $zero, 36
-  sw $t0, 4($s7)         # Save 45 in the element of the second node
+  sw $t0, 4($s7)         # Save 36 in the element of the second node
   add $t0, $s6, $zero    # Place head node address into t0
   loop:
     lw $a0, 4($t0)
@@ -46,11 +35,8 @@ main:
       jal free
       lw $ra, 0($sp)
       addi $sp, $sp,4
-      jr $ra
-
-
-
-
+      li $v0, 10
+      syscall
   Malloc:
       # start_metadata = $t1, end_metadata = $t2, $a0 contains user_size, $a1 contains first sbrk flag
       	ble $a0, $zero, bad_size_or_sbrk_failed
